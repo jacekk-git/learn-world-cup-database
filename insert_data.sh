@@ -14,9 +14,9 @@ cat games.csv | cut -d"," -f4 >> teams_dup.csv
 sort -u teams_dup.csv | grep -v "winner" | grep -v "opponent" > teams.csv
 
 rm -f teams_id.csv
-#$($PSQL "TRUNCATE TABLE games, teams;")
-$($PSQL "\copy teams(name) FROM 'teams.csv' DELIMITER ',' CSV;")
-$($PSQL "\copy teams TO 'teams_id.csv' DELIMITER ',' CSV;")
+$($PSQL "TRUNCATE TABLE games, teams;"  >/dev/null 2>&1)
+$($PSQL "\copy teams(name) FROM 'teams.csv' DELIMITER ',' CSV;" >/dev/null 2>&1)
+$($PSQL "\copy teams TO 'teams_id.csv' DELIMITER ',' CSV;" >/dev/null 2>&1)
 
 rm -f games_new.csv
 #python process_data.py 
@@ -28,8 +28,6 @@ with open("teams_id.csv") as teams_file:
   csv_reader = csv.reader(teams_file, delimiter=',')
   for team in csv_reader:
     teams[team[1]] = team[0]
-
-print(teams)
 
 with open("games_new.csv", "w") as games_new:
   csv_writer = csv.writer(games_new)
@@ -44,4 +42,4 @@ with open("games_new.csv", "w") as games_new:
         line_count += 1
 HEREDOC
 
-$($PSQL "\copy games(year,round,winner_id,opponent_id,winner_goals,opponent_goals) FROM 'games_new.csv' DELIMITER ',' CSV HEADER;")
+$($PSQL "\copy games(year,round,winner_id,opponent_id,winner_goals,opponent_goals) FROM 'games_new.csv' DELIMITER ',' CSV HEADER;" >/dev/null 2>&1)
